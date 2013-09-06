@@ -15,12 +15,15 @@ module glitch_wb(
 
 wire clk_out;
 assign ch_out[0] = clk_out;
-reg en;
-assign ch_out[1] = en;
-wire ready;
-assign ch_out[2] = ready;
 
-assign ch_out[3] = clk_in;
+assign ch_out[1] = clk_in;
+
+reg en;
+assign ch_out[2] = en;
+
+wire ready;
+assign ch_out[3] = ready;
+
 
 wire glitch_en;
 assign ch_out[4] = glitch_en;
@@ -54,7 +57,7 @@ begin
     end
     else
     begin
-        en <= 1'b0;
+        en <= 0'b0;
         width <= width;
         delay <= delay;
         delay <= delay;
