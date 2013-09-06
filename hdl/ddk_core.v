@@ -159,6 +159,7 @@ read_fifo fifoi(
     .we_o(we_o),
     .dout(RX1));
 
+/*
 krake_port ch1(
     .clk_i(clk_o),
     .rst_i(rst_o),
@@ -175,6 +176,23 @@ krake_port ch1(
     .clkb(clkb),
     .clkc(clkc),
     .clkd(clkd));
+*/
+
+assign CH1_OE = 6'b111111;
+
+glitch_wb ch1(
+	.clk_i(clk_o),
+	.rst_i(rst_o),
+	.ack_o(ch1_ack_o),
+	.dat_i(dat_o),
+	.adr_i(adr_o[3:0]),
+	.dat_o(ch1_dat_o),
+	.stb_i(ch1_stb_i),
+	.we_i(we_o),
+	.clk_in(clka),
+	.ch_out(CH1_OUT)
+);
+
 
 krake_port ch2(
     .clk_i(clk_o),
