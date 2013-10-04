@@ -14,16 +14,19 @@ wire g_or  = (clk_in | en);
 
 always @ (clk_in or en)
 begin
-	if (mode[3] == 1'b1)
-		clk_out <= en;
-	else if (mode[2] == 1'b1)
-		clk_out <= g_xor;
-	else if (mode[1] == 1'b1)
-		clk_out <= g_or;
-	else if (mode[0] == 1'b1)
-		clk_out <= g_and;
-	else
-		clk_out <= 1'b0;
+	clk_out <= clk_in;
+
+	if (en)
+	begin
+		if (mode[3] == 1'b1)
+			clk_out <= en;
+		else if (mode[2] == 1'b1)
+			clk_out <= g_xor;
+		else if (mode[1] == 1'b1)
+			clk_out <= g_or;
+		else if (mode[0] == 1'b1)
+			clk_out <= g_and;
+	end
 end
 
 endmodule

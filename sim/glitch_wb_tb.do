@@ -23,6 +23,7 @@ add wave -noupdate -label tb_state_str -radix ascii /glitch_wb_tb/tb_state_str
 add wave -noupdate -divider
 
 add wave -noupdate -label ready /glitch_wb_tb/gi/ready
+add wave -noupdate -label core_en /glitch_wb_tb/gi/glitchi/glitch_corei/en
 add wave -noupdate -label tb_clk_in /glitch_wb_tb/tb_clk_in
 add wave -noupdate -label tb_mode_str -radix ascii /glitch_wb_tb/tb_mode_str
 add wave -noupdate -label tb_clk_out /glitch_wb_tb/tb_clk_out
