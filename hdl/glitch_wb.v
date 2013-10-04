@@ -10,12 +10,21 @@ module glitch_wb(
     input wire          stb_i,
     input wire          we_i,
     input wire          clk_in,
+    output wire         clk_out,
     output wire [5:0]	ch_out
 );
 
-wire clk_out;
-assign ch_out[0] = clk_out;
+// --------------------------------------------
+// Channel pinout:
 
+// 0 clk_out        -- glitch_core.clk_out
+// 1 clk_in         -- glitch_core.clk_in
+// 2 en             -- glitch.en
+// 3 ready          -- glitch.ready
+// 4 glitch_en      -- glitch_core.en
+// 5 delay_en       -- glitch.delay_en
+
+assign ch_out[0] = clk_out;
 assign ch_out[1] = clk_in;
 
 reg en;
@@ -24,7 +33,6 @@ assign ch_out[2] = en;
 wire ready;
 assign ch_out[3] = ready;
 
-
 wire glitch_en;
 assign ch_out[4] = glitch_en;
 
@@ -32,14 +40,18 @@ wire delay_en;
 assign delay_en = (!ready && !glitch_en);
 assign ch_out[5] = delay_en;
 
+// --------------------------------------------
+
 reg [7:0] width;
 reg [15:0] delay;
+reg [3:0] mode;
 
 glitch glitchi(
     .clk(clk_i),
     .rst(rst_i),
     .width(width),
     .delay(delay),
+    .mode(mode),
     .en(en),
     .ready(ready),
     .clk_in(clk_in),
@@ -54,13 +66,14 @@ begin
         en <= 1'b0;
         width <= 8'b0;
         delay <= 16'b0;
+        mode <= 4'b0;
     end
     else
     begin
-        en <= 0'b0;
+        en <= 1'b0;
         width <= width;
         delay <= delay;
-        delay <= delay;
+        mode <= mode;
         ack_o <= 1'b0;
         dat_o <= 8'b0;
 
@@ -127,6 +140,22 @@ begin
                     begin
                         // Read the delay[15:8]
                         dat_o <= delay[15:8];
+                        ack_o <= 1'b1;
+                    end
+                end
+
+                `GLITCH_MODE:
+                begin
+                    if (we_i)
+                    begin
+                        // Write the mode
+                        mode <= dat_i[3:0];
+                        ack_o <= 1'b1;
+                    end
+                    else
+                    begin
+                        // Read the mode
+                        dat_o[3:0] <= mode;
                         ack_o <= 1'b1;
                     end
                 end
