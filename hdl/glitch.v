@@ -5,7 +5,7 @@ module glitch(
     input wire          rst,
     input wire [7:0]    width,
     input wire [15:0]   delay,
-    input wire [3:0]    mode,
+    input wire [7:0]    mode,
     input wire          en,
     output wire         ready,
     input wire          clk_in,
@@ -18,7 +18,7 @@ reg [7:0]   glitch_width;
 reg [7:0]   width_cnt;
 reg [15:0]  glitch_delay;
 reg [15:0]  delay_cnt;
-reg [3:0]   glitch_mode;
+reg [7:0]   glitch_mode;
 
 // Enable and state
 reg [1:0] state;
@@ -44,7 +44,7 @@ begin
         width_cnt <= 8'b0;
         glitch_delay <= 16'b0;
         delay_cnt <= 16'b0;
-        glitch_mode <= 4'b0;
+        glitch_mode <= 8'b0;
     end
     else
     begin

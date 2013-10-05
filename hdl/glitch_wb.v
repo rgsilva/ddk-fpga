@@ -44,7 +44,7 @@ assign ch_out[5] = delay_en;
 
 reg [7:0] width;
 reg [15:0] delay;
-reg [3:0] mode;
+reg [7:0] mode;
 
 glitch glitchi(
     .clk(clk_i),
@@ -66,7 +66,7 @@ begin
         en <= 1'b0;
         width <= 8'b0;
         delay <= 16'b0;
-        mode <= 4'b0;
+        mode <= 8'b0;
     end
     else
     begin
@@ -149,13 +149,13 @@ begin
                     if (we_i)
                     begin
                         // Write the mode
-                        mode <= dat_i[3:0];
+                        mode <= dat_i;
                         ack_o <= 1'b1;
                     end
                     else
                     begin
                         // Read the mode
-                        dat_o[3:0] <= mode;
+                        dat_o <= mode;
                         ack_o <= 1'b1;
                     end
                 end

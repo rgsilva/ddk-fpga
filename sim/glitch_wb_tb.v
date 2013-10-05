@@ -138,9 +138,9 @@ begin
 	#1 if(read_data != 8'hAF) $stop;
 
 	// Test mode read/write.
-	#1 wb_write(`GLITCH_MODE, 8'h0F);
+	#1 wb_write(`GLITCH_MODE, 8'hDC);
 	#1 wb_read(`GLITCH_MODE);
-	#1 if(read_data != 8'h0F) $stop;
+	#1 if(read_data != 8'hDC) $stop;
 	#1 wb_write(`GLITCH_MODE, 8'h00);
 
 	// Setup for small test.
@@ -177,6 +177,11 @@ begin
 
 	// Test mode = OR
 	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_OR);
+	#1 wb_write(`GLITCH_STATUS, 8'b1);
+	#1 wb_wait();
+
+	// Test mode = NAND
+	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_NAND);
 	#1 wb_write(`GLITCH_STATUS, 8'b1);
 	#1 wb_wait();
 
@@ -224,6 +229,7 @@ begin
 		`GLITCH_MODE_NOTHING:	tb_mode_str = "Nothing";
 		`GLITCH_MODE_AND:		tb_mode_str = "AND";
 		`GLITCH_MODE_OR: 		tb_mode_str = "OR";
+		`GLITCH_MODE_NAND:		tb_mode_str = "NAND";
 		`GLITCH_MODE_XOR:		tb_mode_str = "XOR";
 		`GLITCH_MODE_ENABLE:	tb_mode_str = "Enable";
 		default:				tb_mode_str = "??";
