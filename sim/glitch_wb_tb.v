@@ -160,10 +160,30 @@ begin
 		#1 if(read_data != 8'b1) $stop;
 	end
 
-	// Preparation for the mode testing.
+	// Test the glitcher without delays.
 	#1 wb_write(`GLITCH_DELAY_0, 8'h0);
 	#1 wb_write(`GLITCH_DELAY_1, 8'h0);
+	#1 wb_write(`GLITCH_WIDTH, 8'h8);
+	#1 wb_write(`GLITCH_STATUS, 8'b1);
+	#1 wb_read(`GLITCH_STATUS);
+	#1 if(read_data != 8'b0) $stop;
+	#1 wb_wait();
+
+	// Test the glitcher without glitching (only the delay).
+	#1 wb_write(`GLITCH_DELAY_0, 8'h8);
+	#1 wb_write(`GLITCH_DELAY_1, 8'h0);
+	#1 wb_write(`GLITCH_WIDTH, 8'h0);
+	#1 wb_write(`GLITCH_STATUS, 8'b1);
+	#1 wb_read(`GLITCH_STATUS);
+	#1 if(read_data != 8'b0) $stop;
+	#1 wb_wait();
+
+	// Preparation for the mode testing.
+	#1 wb_write(`GLITCH_DELAY_0, 8'h4);
+	#1 wb_write(`GLITCH_DELAY_1, 8'h0);
 	#1 wb_write(`GLITCH_WIDTH, 8'h4);
+
+	// Testing gates.
 
 	// Test mode = NOTHING
 	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_NOTHING);
@@ -189,6 +209,8 @@ begin
 	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_XOR);
 	#1 wb_write(`GLITCH_STATUS, 8'b1);
 	#1 wb_wait();
+
+	// Testing debug modes.
 
 	// Test mode = ENABLE
 	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_ENABLE);
