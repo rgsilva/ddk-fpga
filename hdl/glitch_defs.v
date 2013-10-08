@@ -1,13 +1,10 @@
 // Glitch modes
 
 // Nothing and gates
-`define GLITCH_MODE_NOTHING	8'b00000000
-`define GLITCH_MODE_AND		8'b00000001
-`define GLITCH_MODE_OR		8'b00000010
-`define GLITCH_MODE_NAND	8'b00000100
-`define GLITCH_MODE_XOR		8'b00001000
-// Debug modes
-`define GLITCH_MODE_ENABLE	8'b10000000
+`define GLITCH_MODE_BYPASS	8'b00000000
+`define GLITCH_MODE_ZERO	8'b00000001
+`define GLITCH_MODE_ONE		8'b00000010
+`define GLITCH_MODE_NOT		8'b00000100
 
 // Glitch module states
 

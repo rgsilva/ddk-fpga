@@ -185,35 +185,23 @@ begin
 
 	// Testing gates.
 
-	// Test mode = NOTHING
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_NOTHING);
+	// Test mode = BYPASS
+	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_BYPASS);
 	#1 wb_write(`GLITCH_STATUS, 8'b1);
 	#1 wb_wait();
 
-	// Test mode = AND
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_AND);
+	// Test mode = ZERO
+	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_ZERO);
 	#1 wb_write(`GLITCH_STATUS, 8'b1);
 	#1 wb_wait();
 
-	// Test mode = OR
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_OR);
+	// Test mode = ONE
+	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_ONE);
 	#1 wb_write(`GLITCH_STATUS, 8'b1);
 	#1 wb_wait();
 
-	// Test mode = NAND
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_NAND);
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
-	#1 wb_wait();
-
-	// Test mode = XOR
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_XOR);
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
-	#1 wb_wait();
-
-	// Testing debug modes.
-
-	// Test mode = ENABLE
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_ENABLE);
+	// Test mode = NOT
+	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_NOT);
 	#1 wb_write(`GLITCH_STATUS, 8'b1);
 	#1 wb_wait();
 
@@ -248,12 +236,10 @@ reg [8*7 : 0] tb_mode_str;
 always @ (gi.mode)
 begin
 	case (gi.mode)
-		`GLITCH_MODE_NOTHING:	tb_mode_str = "Nothing";
-		`GLITCH_MODE_AND:		tb_mode_str = "AND";
-		`GLITCH_MODE_OR: 		tb_mode_str = "OR";
-		`GLITCH_MODE_NAND:		tb_mode_str = "NAND";
-		`GLITCH_MODE_XOR:		tb_mode_str = "XOR";
-		`GLITCH_MODE_ENABLE:	tb_mode_str = "Enable";
+		`GLITCH_MODE_BYPASS:	tb_mode_str = "Bypass";
+		`GLITCH_MODE_ZERO: 		tb_mode_str = "Zero";
+		`GLITCH_MODE_ONE:		tb_mode_str = "One";
+		`GLITCH_MODE_NOT:		tb_mode_str = "NOT";
 		default:				tb_mode_str = "??";
 	endcase
 end
