@@ -10,8 +10,7 @@ reg	tb_clk;
 reg	tb_rst;
 
 reg tb_clk_in;
-reg tb_clk_gla;
-reg tb_clk_glb;
+reg tb_clk_gl;
 wire tb_clk_out;
 
 reg 			tb_we_o;
@@ -30,9 +29,8 @@ glitch_wb gi(
 	.stb_i(tb_stb_o),
 	.we_i(tb_we_o),
 	.ack_o(tb_ack_i),
-	.clk_in(tb_clk_in),
-	.clk_gla(tb_clk_gla),
-	.clk_glb(tb_clk_glb),
+	.clk_in(tb_clk),
+	.clk_gl(tb_clk_gl),
 	.clk_out(tb_clk_out)
 );
 
@@ -99,8 +97,7 @@ initial
 begin
 	tb_clk <= 1'b0;
 	tb_clk_in <= 1'b0;
-	tb_clk_gla <= 1'b0;
-	tb_clk_glb <= 1'b0;
+	tb_clk_gl <= 1'b0;
 	tb_rst <= 1'b0;
 	#5 tb_rst <= 1'b1;
 	#20 tb_rst <= 1'b0;
@@ -118,12 +115,7 @@ end
 
 always
 begin
-	#16 tb_clk_gla <= ~tb_clk_gla;
-end
-
-always
-begin
-	#33 tb_clk_glb <= ~tb_clk_glb;
+	#25 tb_clk_gl <= ~tb_clk_gl;
 end
 
 initial
@@ -221,16 +213,10 @@ begin
 	#1 wb_write(`GLITCH_STATUS, 8'b1);
 	#1 wb_wait();
 
-	// Test mode = GLA
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_GLA);
+	// Test mode = CLKGL
+	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_CLKGL);
 	#1 wb_write(`GLITCH_STATUS, 8'b1);
 	#1 wb_wait();
-
-	// Test mode = GLB
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_GLB);
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
-	#1 wb_wait();
-
 
 	$display("Testbench completed successfully!");
 	$stop;
@@ -267,8 +253,7 @@ begin
 		`GLITCH_MODE_ZERO: 		tb_mode_str = "Zero";
 		`GLITCH_MODE_ONE:		tb_mode_str = "One";
 		`GLITCH_MODE_NOT:		tb_mode_str = "NOT";
-		`GLITCH_MODE_GLA:		tb_mode_str = "GLA";
-		`GLITCH_MODE_GLB:		tb_mode_str = "GLB";
+		`GLITCH_MODE_CLKGL:		tb_mode_str = "CLK GL";
 		default:				tb_mode_str = "??";
 	endcase
 end

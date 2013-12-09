@@ -173,13 +173,12 @@ glitch_wb ch1(
 	.stb_i(ch1_stb_i),
 	.we_i(we_o),
 	.clk_in(GLC),
-    .clk_gla(GLA),
-    .clk_glb(GLB),
+    .clk_gl(GLB),
 	.ch_out(CH1_OUT)
 );
 
 assign CH2_OE = 6'b111111;
-assign CH2_OUT = {GLA, GLB, GLC, 1'b0, 1'b0, 1'b0};
+assign CH2_OUT = {GLA, 1'b0, GLB, 1'b0, GLC, 1'b0};
 
 krake_port ch3(
     .clk_i(clk_o),

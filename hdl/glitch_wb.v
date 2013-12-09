@@ -10,8 +10,7 @@ module glitch_wb(
     input wire          stb_i,
     input wire          we_i,
     input wire          clk_in,
-    input wire          clk_gla,
-    input wire          clk_glb,
+    input wire          clk_gl,
     output wire         clk_out,
     output wire [5:0]	ch_out
 );
@@ -49,16 +48,14 @@ reg [15:0] delay;
 reg [7:0] mode;
 
 glitch glitchi(
-    .clk(clk_i),
+    .clk_in(clk_in),
+    .clk_gl(clk_gl),
     .rst(rst_i),
     .width(width),
     .delay(delay),
     .mode(mode),
     .en(en),
     .ready(ready),
-    .clk_in(clk_in),
-    .clk_gla(clk_gla),
-    .clk_glb(clk_glb),
     .clk_out(clk_out),
     .glitch_en(glitch_en)
 );

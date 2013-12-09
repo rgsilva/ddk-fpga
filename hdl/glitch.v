@@ -1,16 +1,14 @@
 `include "../hdl/glitch_defs.v"
 
 module glitch(
-    input wire          clk,
+    input wire          clk_in,
+    input wire          clk_gl,
     input wire          rst,
     input wire [7:0]    width,
     input wire [15:0]   delay,
     input wire [7:0]    mode,
     input wire          en,
     output wire         ready,
-    input wire          clk_in,
-    input wire          clk_gla,
-    input wire          clk_glb,
     output wire         clk_out,
 	output reg			glitch_en
 );
@@ -30,14 +28,13 @@ assign ready = (state == `IDLE && !en);
 
 glitch_core glitch_corei(
     .clk_in(clk_in),
-    .clk_gla(clk_gla),
-    .clk_glb(clk_glb),
+    .clk_gl(clk_gl),
     .en(glitch_en),
     .mode(glitch_mode),
     .clk_out(clk_out)
 );
 
-always @ (posedge clk)
+always @ (posedge clk_in)
 begin
     if(rst)
     begin
