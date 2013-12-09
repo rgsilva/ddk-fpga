@@ -9,6 +9,8 @@ module glitch(
     input wire          en,
     output wire         ready,
     input wire          clk_in,
+    input wire          clk_gla,
+    input wire          clk_glb,
     output wire         clk_out,
 	output reg			glitch_en
 );
@@ -27,8 +29,9 @@ reg [1:0] state;
 assign ready = (state == `IDLE && !en);
 
 glitch_core glitch_corei(
-    .clk(clk),
     .clk_in(clk_in),
+    .clk_gla(clk_gla),
+    .clk_glb(clk_glb),
     .en(glitch_en),
     .mode(glitch_mode),
     .clk_out(clk_out)

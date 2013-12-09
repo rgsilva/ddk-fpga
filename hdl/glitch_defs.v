@@ -5,6 +5,9 @@
 `define GLITCH_MODE_ZERO	8'b00000001
 `define GLITCH_MODE_ONE		8'b00000010
 `define GLITCH_MODE_NOT		8'b00000100
+`define GLITCH_MODE_GLA		8'b00001000
+`define GLITCH_MODE_GLB		8'b00010000
+
 
 // Glitch module states
 

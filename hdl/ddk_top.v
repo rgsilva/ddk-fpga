@@ -120,8 +120,26 @@ assign DataWe = RX3;
 wire DataClk;
 assign DataClk = TX3;
 
+// PLL
+wire GLA, GLB, GLC, CLKA;
+
+PLLINT pllinti(
+        .A(SysClk),
+        .Y(CLKA)
+);
+
+p3_pll plli(
+        .POWERDOWN(1'b1),
+        .CLKA(CLKA),
+        .GLA(GLA),
+        .GLB(GLB),
+        .GLC(GLC)
+);
+
 ddk_core corei(
-        .SysClk(SysClk),        // System Clock
+        .GLA(GLA),              // PLL Clock A (System Clock)
+        .GLB(GLB),              // PLL Clock B
+        .GLC(GLC),              // PLL Clock C
         .SysRst(SysRst),        // System RST
         .TX1(TX1),              // LPC TXD1
         .RX1(RX1),              // LPC RXD1

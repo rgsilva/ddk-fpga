@@ -34,7 +34,9 @@
 // TODO: wait a couple of clock cycles on Reset
 
 module ddk_core(
-        input   wire  SysClk,            // System Clock
+        input   wire  GLA,               // PLL Clock A (System Clock)
+        input   wire  GLB,               // PLL Clock B
+        input   wire  GLC,               // PLL Clock C
         input   wire  SysRst,            // System Reset
         input   wire  TX1,               // LPC TXD1
         output  wire  RX1,               // LPC RXD1
@@ -77,7 +79,7 @@ wire [7:0]   dat_o;
 reg  [7:0]   dat_i;
 reg          ack_i;
 
-assign clk_o = SysClk;
+assign clk_o = GLA;
 assign rst_o = SysRst;
 
 // CH1
@@ -159,25 +161,6 @@ read_fifo fifoi(
     .we_o(we_o),
     .dout(RX1));
 
-/*
-krake_port ch1(
-    .clk_i(clk_o),
-    .rst_i(rst_o),
-    .ack_o(ch1_ack_o),
-    .dat_i(dat_o),
-    .adr_i(adr_o[3:0]),
-    .dat_o(ch1_dat_o),
-    .stb_i(ch1_stb_i),
-    .we_i(we_o),
-    .ch_in(CH1_IN),
-    .ch_out(CH1_OUT),
-    .ch_oe(CH1_OE),
-    .clka(clka),
-    .clkb(clkb),
-    .clkc(clkc),
-    .clkd(clkd));
-*/
-
 assign CH1_OE = 6'b111111;
 
 glitch_wb ch1(
@@ -189,27 +172,14 @@ glitch_wb ch1(
 	.dat_o(ch1_dat_o),
 	.stb_i(ch1_stb_i),
 	.we_i(we_o),
-	.clk_in(clka),
+	.clk_in(GLC),
+    .clk_gla(GLA),
+    .clk_glb(GLB),
 	.ch_out(CH1_OUT)
 );
 
-
-krake_port ch2(
-    .clk_i(clk_o),
-    .rst_i(rst_o),
-    .ack_o(ch2_ack_o),
-    .dat_i(dat_o),
-    .adr_i(adr_o[3:0]),
-    .dat_o(ch2_dat_o),
-    .stb_i(ch2_stb_i),
-    .we_i(we_o),
-    .ch_in(CH2_IN),
-    .ch_out(CH2_OUT),
-    .ch_oe(CH2_OE),
-    .clka(clka),
-    .clkb(clkb),
-    .clkc(clkc),
-    .clkd(clkd));
+assign CH2_OE = 6'b111111;
+assign CH2_OUT = {GLA, GLB, GLC, 1'b0, 1'b0, 1'b0};
 
 krake_port ch3(
     .clk_i(clk_o),
