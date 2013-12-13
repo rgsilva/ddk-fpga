@@ -19,6 +19,7 @@ add wave -noupdate -label width_cnt -radix hexadecimal /glitch_wb_tb/gi/glitchi/
 add wave -noupdate -label delay -radix hexadecimal /glitch_wb_tb/gi/glitchi/glitch_delay
 add wave -noupdate -label delay_cnt -radix hexadecimal /glitch_wb_tb/gi/glitchi/delay_cnt
 add wave -noupdate -label tb_state_str -radix ascii /glitch_wb_tb/tb_state_str
+add wave -noupdate -label tb_en /glitch_wb_tb/tb_en
 
 add wave -noupdate -divider
 

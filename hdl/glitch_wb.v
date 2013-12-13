@@ -28,8 +28,8 @@ module glitch_wb(
 assign ch_out[0] = clk_out;
 assign ch_out[1] = clk_in;
 
-reg en;
-assign ch_out[2] = en;
+wire en;
+assign en = ch_out[2];
 
 wire ready;
 assign ch_out[3] = ready;
@@ -80,12 +80,10 @@ always @ (posedge clk_i)
 begin
     if(rst_i)
     begin
-        en <= 1'b0;
         fifo_in <= 32'b0;
     end
     else
     begin
-        en <= 1'b0;
         ack_o <= 1'b0;
         dat_o <= 8'b0;
 
@@ -97,13 +95,6 @@ begin
             case(adr_i)
                 `GLITCH_STATUS:
                 begin
-                    if (we_i)
-                    begin
-                        // Write the status
-                        en <= dat_i[0];
-                        ack_o <= 1'b1;
-                    end
-                    else
                     begin
                         // Read the status
                         dat_o[0] <= ready;

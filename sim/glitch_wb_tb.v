@@ -9,6 +9,8 @@ module glitch_wb_tb();
 reg	tb_clk;
 reg	tb_rst;
 
+reg tb_en;
+
 reg tb_clk_in;
 reg tb_clk_gl;
 wire tb_clk_out;
@@ -19,6 +21,9 @@ reg		[5:2]	tb_adr_o;
 reg 			tb_stb_o;
 wire	[7:0]	tb_dat_i;
 wire			tb_ack_i;
+
+wire	[5:0]	ch_out;
+assign ch_out[2] = tb_en;
 
 glitch_wb gi(
 	.clk_i(tb_clk),
@@ -31,7 +36,8 @@ glitch_wb gi(
 	.ack_o(tb_ack_i),
 	.clk_in(tb_clk_in),
 	.clk_gl(tb_clk_gl),
-	.clk_out(tb_clk_out)
+	.clk_out(tb_clk_out),
+	.ch_out(ch_out)
 );
 
 // --------------------------------------------------------------------
@@ -99,6 +105,7 @@ begin
 	tb_clk_in <= 1'b0;
 	tb_clk_gl <= 1'b0;
 	tb_rst <= 1'b0;
+	tb_en <= 1'b0;
 	#5 tb_rst <= 1'b1;
 	#40 tb_rst <= 1'b0;
 end
@@ -120,6 +127,12 @@ end
 
 initial
 begin
+	// Wait for the reset to finish.
+	#50
+	begin
+		
+	end
+
 	// It should start as ready.
 	#1 wb_read(`GLITCH_STATUS);
 	#1 if(read_data != 8'b1) $stop;
@@ -145,9 +158,10 @@ begin
 	#1 if(read_data != 8'h00) $stop;
 
 	// Enabling the glitcher should block it (rdy == zero).
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
+	#1 tb_en <= 1'b1;
 	#1 wb_read(`GLITCH_STATUS);
 	#1 if(read_data != 8'b0) $stop;
+	#20 tb_en <= 1'b0;
 
 	// After a while it should be ready again.
 	#1000
@@ -159,6 +173,8 @@ begin
 	// Test mode = CLKGL
 	#1 wb_write(`GLITCH_QUEUE_0, 8'h8);
 
+	// -- Test block I --
+
 	// Delay = 0x2, Width = 0x2
 	#1 wb_write(`GLITCH_QUEUE_1, 8'h2);
 	#1 wb_write(`GLITCH_QUEUE_2, 8'h2);
@@ -169,13 +185,16 @@ begin
 	#1 wb_write(`GLITCH_QUEUE_2, 8'h0);
 	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
 
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
+	#1 tb_en <= 1'b1;
 	#1 wb_read(`GLITCH_STATUS);
 	#1 if(read_data != 8'b0) $stop;
+	#20 tb_en <= 1'b0;
 	#1 wb_wait();
 	#1 wb_wait();
 	#1 wb_wait();
 
+	// -- Test block II --
+	
 	// Delay = 0x3, Width = 0x0
 	#1 wb_write(`GLITCH_QUEUE_1, 8'h0);
 	#1 wb_write(`GLITCH_QUEUE_2, 8'h3);
@@ -186,21 +205,25 @@ begin
 	#1 wb_write(`GLITCH_QUEUE_2, 8'h0);
 	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
 
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
+	#1 tb_en <= 1'b1;
 	#1 wb_read(`GLITCH_STATUS);
 	#1 if(read_data != 8'b0) $stop;
+	#20 tb_en <= 1'b0;
 	#1 wb_wait();
 	#1 wb_wait();
-	#1 wb_wait();
+	#1 wb_wait(); 
+
+	// -- Test block III --
 
 	// Delay = 0x3, Width = 0x5
 	#1 wb_write(`GLITCH_QUEUE_1, 8'h5);
 	#1 wb_write(`GLITCH_QUEUE_2, 8'h3);
 	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
 
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
+	#1 tb_en <= 1'b1;
 	#1 wb_read(`GLITCH_STATUS);
 	#1 if(read_data != 8'b0) $stop;
+	#20 tb_en <= 1'b0;
 	#1 wb_wait();
 	#1 wb_wait();
 	#1 wb_wait();
