@@ -43,17 +43,33 @@ assign ch_out[5] = delay_en;
 
 // --------------------------------------------
 
-reg [7:0] width;
-reg [15:0] delay;
-reg [7:0] mode;
+reg [31:0] fifo_in;
+reg fifo_we;
+wire fifo_full;
+
+wire [31:0] fifo_out;
+wire fifo_re;
+wire fifo_empty;
+
+glitch_fifo fifoi(
+    .WCLOCK(clk_i),
+    .RCLOCK(clk_in),
+    .RESET(rst_i),
+    .DATA(fifo_in),
+    .WE(fifo_we),
+    .Q(fifo_out),
+    .RE(fifo_re),
+    .EMPTY(fifo_empty),
+    .FULL(fifo_full)
+);
 
 glitch glitchi(
     .clk_in(clk_in),
     .clk_gl(clk_gl),
     .rst(rst_i),
-    .width(width),
-    .delay(delay),
-    .mode(mode),
+    .fifo_in(fifo_out),
+    .fifo_empty(fifo_empty),
+    .fifo_re(fifo_re),
     .en(en),
     .ready(ready),
     .clk_out(clk_out),
@@ -65,18 +81,16 @@ begin
     if(rst_i)
     begin
         en <= 1'b0;
-        width <= 8'b0;
-        delay <= 16'b0;
-        mode <= 8'b0;
+        fifo_in <= 32'b0;
     end
     else
     begin
         en <= 1'b0;
-        width <= width;
-        delay <= delay;
-        mode <= mode;
         ack_o <= 1'b0;
         dat_o <= 8'b0;
+
+        fifo_we <= 1'b0;
+        fifo_in <= fifo_in;
 
         if (stb_i)
         begin
@@ -97,69 +111,79 @@ begin
                     end
                 end
 
-                `GLITCH_WIDTH:
+                `GLITCH_QUEUE_0:
                 begin
                     if (we_i)
                     begin
-                        // Write the width
-                        width <= dat_i;
+                        // Write the settings [7:0]
+                        fifo_in[7:0] <= dat_i;
                         ack_o <= 1'b1;
                     end
                     else
                     begin
-                        // Read the status
-                        dat_o <= width;
+                        // Read the settings [7:0]
+                        dat_o <= fifo_in[7:0];
                         ack_o <= 1'b1;
                     end
                 end
 
-                `GLITCH_DELAY_0:
+                `GLITCH_QUEUE_1:
                 begin
                     if (we_i)
                     begin
-                        // Write the delay[7:0]
-                        delay[7:0] <= dat_i;
+                        // Write the settings [15:8]
+                        fifo_in[15:8] <= dat_i;
                         ack_o <= 1'b1;
                     end
                     else
                     begin
-                        // Read the delay[7:0]
-                        dat_o <= delay[7:0];
+                        // Read the settings [15:8]
+                        dat_o <= fifo_in[15:8];
                         ack_o <= 1'b1;
                     end
                 end
 
-                `GLITCH_DELAY_1:
+                `GLITCH_QUEUE_2:
                 begin
                     if (we_i)
                     begin
-                        // Write the delay[15:8]
-                        delay[15:8] <= dat_i;
+                        // Write the settings [23:16]
+                        fifo_in[23:16] <= dat_i;
                         ack_o <= 1'b1;
                     end
                     else
                     begin
-                        // Read the delay[15:8]
-                        dat_o <= delay[15:8];
+                        // Read the settings [23:16]
+                        dat_o <= fifo_in[23:16];
                         ack_o <= 1'b1;
                     end
                 end
 
-                `GLITCH_MODE:
+                `GLITCH_QUEUE_3:
                 begin
                     if (we_i)
                     begin
-                        // Write the mode
-                        mode <= dat_i;
-                        ack_o <= 1'b1;
+                        // Write the settings [31:24]
+                        fifo_in[31:24] <= dat_i;
+
+                        if (!fifo_full)
+                        begin
+                            fifo_we <= 1'b1;
+                            ack_o <= 1'b1;
+                        end
+                        else
+                        begin
+                            ack_o <= 1'b0;
+                        end
                     end
                     else
                     begin
-                        // Read the mode
-                        dat_o <= mode;
+                        // Read the settings [31:24]
+                        dat_o <= fifo_in[31:24];
                         ack_o <= 1'b1;
                     end
                 end
+
             endcase
         end
     end

@@ -29,4 +29,10 @@ add wave -noupdate -label tb_clk_gl /glitch_wb_tb/tb_clk_gl
 add wave -noupdate -label tb_mode_str -radix ascii /glitch_wb_tb/tb_mode_str
 add wave -noupdate -label tb_clk_out /glitch_wb_tb/tb_clk_out
 
+add wave -noupdate -divider
+
+add wave -noupdate -label full /glitch_wb_tb/gi/fifoi/FULL
+add wave -noupdate -label empty /glitch_wb_tb/gi/fifoi/EMPTY
+add wave -noupdate -label reset /glitch_wb_tb/gi/fifoi/RESET
+
 TreeUpdate [SetDefaultTree]

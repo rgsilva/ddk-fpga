@@ -29,7 +29,7 @@ glitch_wb gi(
 	.stb_i(tb_stb_o),
 	.we_i(tb_we_o),
 	.ack_o(tb_ack_i),
-	.clk_in(tb_clk),
+	.clk_in(tb_clk_in),
 	.clk_gl(tb_clk_gl),
 	.clk_out(tb_clk_out)
 );
@@ -100,7 +100,7 @@ begin
 	tb_clk_gl <= 1'b0;
 	tb_rst <= 1'b0;
 	#5 tb_rst <= 1'b1;
-	#20 tb_rst <= 1'b0;
+	#40 tb_rst <= 1'b0;
 end
 
 always
@@ -110,12 +110,12 @@ end
 
 always
 begin
-	#50 tb_clk_in <= ~tb_clk_in;
+	#15 tb_clk_in <= ~tb_clk_in;
 end
 
 always
 begin
-	#25 tb_clk_gl <= ~tb_clk_gl;
+	#7 tb_clk_gl <= ~tb_clk_gl;
 end
 
 initial
@@ -124,37 +124,25 @@ begin
 	#1 wb_read(`GLITCH_STATUS);
 	#1 if(read_data != 8'b1) $stop;
 
-	// It should start with delay and width as 0.
-	#1 wb_read(`GLITCH_DELAY_0);
-	#1 if(read_data != 8'b0) $stop;
-	#1 wb_read(`GLITCH_DELAY_1);
-	#1 if(read_data != 8'b0) $stop;
-	#1 wb_read(`GLITCH_WIDTH);
-	#1 if(read_data != 8'b0) $stop;
+	// Test queue 0 read/write.
+	#1 wb_write(`GLITCH_QUEUE_0, `GLITCH_MODE_NOT);
+	#1 wb_read(`GLITCH_QUEUE_0);
+	#1 if(read_data != `GLITCH_MODE_NOT) $stop;
 
-	// Test delay read/write.
-	#1 wb_write(`GLITCH_DELAY_0, 8'hAB);
-	#1 wb_read(`GLITCH_DELAY_0);
-	#1 if(read_data != 8'hAB) $stop;
-	#1 wb_write(`GLITCH_DELAY_1, 8'hCD);
-	#1 wb_read(`GLITCH_DELAY_1);
-	#1 if(read_data != 8'hCD) $stop;
+	// Test queue 1 read/write.
+	#1 wb_write(`GLITCH_QUEUE_1, 8'h12);
+	#1 wb_read(`GLITCH_QUEUE_1);
+	#1 if(read_data != 8'h12) $stop;
 
-	// Test width read/write.
-	#1 wb_write(`GLITCH_WIDTH, 8'hAF);
-	#1 wb_read(`GLITCH_WIDTH);
-	#1 if(read_data != 8'hAF) $stop;
+	// Test queue 2 read/write.
+	#1 wb_write(`GLITCH_QUEUE_2, 8'h03);
+	#1 wb_read(`GLITCH_QUEUE_2);
+	#1 if(read_data != 8'h03) $stop;
 
-	// Test mode read/write.
-	#1 wb_write(`GLITCH_MODE, 8'hDC);
-	#1 wb_read(`GLITCH_MODE);
-	#1 if(read_data != 8'hDC) $stop;
-	#1 wb_write(`GLITCH_MODE, 8'h00);
-
-	// Setup for small test.
-	#1 wb_write(`GLITCH_DELAY_0, 8'h8);
-	#1 wb_write(`GLITCH_DELAY_1, 8'h0);
-	#1 wb_write(`GLITCH_WIDTH, 8'h4);
+	// Test queue 3 read/write.
+	#1 wb_write(`GLITCH_QUEUE_3, 8'h00);
+	#1 wb_read(`GLITCH_QUEUE_3);
+	#1 if(read_data != 8'h00) $stop;
 
 	// Enabling the glitcher should block it (rdy == zero).
 	#1 wb_write(`GLITCH_STATUS, 8'b1);
@@ -162,60 +150,59 @@ begin
 	#1 if(read_data != 8'b0) $stop;
 
 	// After a while it should be ready again.
-	#500
+	#1000
 	begin
 	 	#1 wb_read(`GLITCH_STATUS);
 		#1 if(read_data != 8'b1) $stop;
 	end
 
-	// Test the glitcher without delays.
-	#1 wb_write(`GLITCH_DELAY_0, 8'h0);
-	#1 wb_write(`GLITCH_DELAY_1, 8'h0);
-	#1 wb_write(`GLITCH_WIDTH, 8'h8);
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
-	#1 wb_read(`GLITCH_STATUS);
-	#1 if(read_data != 8'b0) $stop;
-	#1 wb_wait();
-
-	// Test the glitcher without glitching (only the delay).
-	#1 wb_write(`GLITCH_DELAY_0, 8'h8);
-	#1 wb_write(`GLITCH_DELAY_1, 8'h0);
-	#1 wb_write(`GLITCH_WIDTH, 8'h0);
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
-	#1 wb_read(`GLITCH_STATUS);
-	#1 if(read_data != 8'b0) $stop;
-	#1 wb_wait();
-
-	// Preparation for the mode testing.
-	#1 wb_write(`GLITCH_DELAY_0, 8'h4);
-	#1 wb_write(`GLITCH_DELAY_1, 8'h0);
-	#1 wb_write(`GLITCH_WIDTH, 8'h10);
-
-	// Testing gates.
-
-	// Test mode = BYPASS
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_BYPASS);
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
-	#1 wb_wait();
-
-	// Test mode = ZERO
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_ZERO);
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
-	#1 wb_wait();
-
-	// Test mode = ONE
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_ONE);
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
-	#1 wb_wait();
-
-	// Test mode = NOT
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_NOT);
-	#1 wb_write(`GLITCH_STATUS, 8'b1);
-	#1 wb_wait();
-
 	// Test mode = CLKGL
-	#1 wb_write(`GLITCH_MODE, `GLITCH_MODE_CLKGL);
+	#1 wb_write(`GLITCH_QUEUE_0, 8'h8);
+
+	// Delay = 0x2, Width = 0x2
+	#1 wb_write(`GLITCH_QUEUE_1, 8'h2);
+	#1 wb_write(`GLITCH_QUEUE_2, 8'h2);
+	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
+
+	// Delay = 0x0, Width = 0x3
+	#1 wb_write(`GLITCH_QUEUE_1, 8'h3);
+	#1 wb_write(`GLITCH_QUEUE_2, 8'h0);
+	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
+
 	#1 wb_write(`GLITCH_STATUS, 8'b1);
+	#1 wb_read(`GLITCH_STATUS);
+	#1 if(read_data != 8'b0) $stop;
+	#1 wb_wait();
+	#1 wb_wait();
+	#1 wb_wait();
+
+	// Delay = 0x3, Width = 0x0
+	#1 wb_write(`GLITCH_QUEUE_1, 8'h0);
+	#1 wb_write(`GLITCH_QUEUE_2, 8'h3);
+	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
+
+	// Delay = 0x0, Width = 0x0
+	#1 wb_write(`GLITCH_QUEUE_1, 8'h0);
+	#1 wb_write(`GLITCH_QUEUE_2, 8'h0);
+	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
+
+	#1 wb_write(`GLITCH_STATUS, 8'b1);
+	#1 wb_read(`GLITCH_STATUS);
+	#1 if(read_data != 8'b0) $stop;
+	#1 wb_wait();
+	#1 wb_wait();
+	#1 wb_wait();
+
+	// Delay = 0x3, Width = 0x5
+	#1 wb_write(`GLITCH_QUEUE_1, 8'h5);
+	#1 wb_write(`GLITCH_QUEUE_2, 8'h3);
+	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
+
+	#1 wb_write(`GLITCH_STATUS, 8'b1);
+	#1 wb_read(`GLITCH_STATUS);
+	#1 if(read_data != 8'b0) $stop;
+	#1 wb_wait();
+	#1 wb_wait();
 	#1 wb_wait();
 
 	$display("Testbench completed successfully!");
@@ -223,14 +210,15 @@ begin
 end
 
 // Create human-readable labels
-reg [8*6 : 0] tb_adr_o_str;
+reg [8*10 : 0] tb_adr_o_str;
 always @ (tb_adr_o)
 begin
 	case (tb_adr_o)
 		`GLITCH_STATUS:		tb_adr_o_str = "Status";
-		`GLITCH_WIDTH:		tb_adr_o_str = "Width";
-		`GLITCH_DELAY_0:	tb_adr_o_str = "Delay 0";
-		`GLITCH_DELAY_1:	tb_adr_o_str = "Delay 1";
+		`GLITCH_QUEUE_0:	tb_adr_o_str = "Queue 0";
+		`GLITCH_QUEUE_1:	tb_adr_o_str = "Queue 1";
+		`GLITCH_QUEUE_2:	tb_adr_o_str = "Queue 2";
+		`GLITCH_QUEUE_3:	tb_adr_o_str = "Queue 3";
 		default: 			tb_adr_o_str = "??";
 	endcase
 end
@@ -246,9 +234,9 @@ begin
 end
 
 reg [8*7 : 0] tb_mode_str;
-always @ (gi.mode)
+always @ (gi.glitchi.glitch_mode)
 begin
-	case (gi.mode)
+	case (gi.glitchi.glitch_mode)
 		`GLITCH_MODE_BYPASS:	tb_mode_str = "Bypass";
 		`GLITCH_MODE_ZERO: 		tb_mode_str = "Zero";
 		`GLITCH_MODE_ONE:		tb_mode_str = "One";
@@ -262,9 +250,10 @@ reg [8*5 : 0] tb_state_str;
 always @ (gi.glitchi.state)
 begin
     case (gi.glitchi.state)
-        `IDLE:      tb_state_str = "Idle";
-        `DELAY:     tb_state_str = "Delay";
-        `WIDTH:     tb_state_str = "Width";
+        `GLITCH_STATE_IDLE:      tb_state_str = "Idle";
+        `GLITCH_STATE_READ:		 tb_state_str = "Read";
+        `GLITCH_STATE_DELAY:     tb_state_str = "Delay";
+        `GLITCH_STATE_WIDTH:     tb_state_str = "Width";
         default:    tb_state_str = "??";
     endcase
 end
