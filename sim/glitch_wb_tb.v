@@ -9,8 +9,6 @@ module glitch_wb_tb();
 reg	tb_clk;
 reg	tb_rst;
 
-reg tb_en;
-
 reg tb_clk_in;
 reg tb_clk_gl;
 wire tb_clk_out;
@@ -21,9 +19,6 @@ reg		[5:2]	tb_adr_o;
 reg 			tb_stb_o;
 wire	[7:0]	tb_dat_i;
 wire			tb_ack_i;
-
-wire	[5:0]	ch_out;
-assign ch_out[2] = tb_en;
 
 glitch_wb gi(
 	.clk_i(tb_clk),
@@ -36,8 +31,7 @@ glitch_wb gi(
 	.ack_o(tb_ack_i),
 	.clk_in(tb_clk_in),
 	.clk_gl(tb_clk_gl),
-	.clk_out(tb_clk_out),
-	.ch_out(ch_out)
+	.clk_out(tb_clk_out)
 );
 
 // --------------------------------------------------------------------
@@ -105,7 +99,6 @@ begin
 	tb_clk_in <= 1'b0;
 	tb_clk_gl <= 1'b0;
 	tb_rst <= 1'b0;
-	tb_en <= 1'b0;
 	#5 tb_rst <= 1'b1;
 	#40 tb_rst <= 1'b0;
 end
@@ -137,96 +130,68 @@ begin
 	#1 wb_read(`GLITCH_STATUS);
 	#1 if(read_data != 8'b1) $stop;
 
-	// Test queue 0 read/write.
-	#1 wb_write(`GLITCH_QUEUE_0, `GLITCH_MODE_NOT);
-	#1 wb_read(`GLITCH_QUEUE_0);
-	#1 if(read_data != `GLITCH_MODE_NOT) $stop;
+	// -- Test blocks --
 
-	// Test queue 1 read/write.
-	#1 wb_write(`GLITCH_QUEUE_1, 8'h12);
-	#1 wb_read(`GLITCH_QUEUE_1);
-	#1 if(read_data != 8'h12) $stop;
-
-	// Test queue 2 read/write.
-	#1 wb_write(`GLITCH_QUEUE_2, 8'h03);
-	#1 wb_read(`GLITCH_QUEUE_2);
-	#1 if(read_data != 8'h03) $stop;
-
-	// Test queue 3 read/write.
-	#1 wb_write(`GLITCH_QUEUE_3, 8'h00);
-	#1 wb_read(`GLITCH_QUEUE_3);
-	#1 if(read_data != 8'h00) $stop;
-
-	// Enabling the glitcher should block it (rdy == zero).
-	#1 tb_en <= 1'b1;
-	#1 wb_read(`GLITCH_STATUS);
-	#1 if(read_data != 8'b0) $stop;
-	#20 tb_en <= 1'b0;
-
-	// After a while it should be ready again.
-	#1000
-	begin
-	 	#1 wb_read(`GLITCH_STATUS);
-		#1 if(read_data != 8'b1) $stop;
-	end
-
-	// Test mode = CLKGL
-	#1 wb_write(`GLITCH_QUEUE_0, 8'h8);
-
-	// -- Test block I --
+	#1 wb_write(`GLITCH_QUEUE_0, `GLITCH_MODE_CLKGL);
+	#1 wb_write(`GLITCH_QUEUE_1, 8'h0);
+	#1 wb_write(`GLITCH_QUEUE_2, 8'h0);
+	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
 
 	// Delay = 0x2, Width = 0x2
+	#1 wb_write(`GLITCH_QUEUE_0, `GLITCH_MODE_CLKGL);
 	#1 wb_write(`GLITCH_QUEUE_1, 8'h2);
 	#1 wb_write(`GLITCH_QUEUE_2, 8'h2);
 	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
 
-	// Delay = 0x0, Width = 0x3
-	#1 wb_write(`GLITCH_QUEUE_1, 8'h3);
-	#1 wb_write(`GLITCH_QUEUE_2, 8'h0);
-	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
-
-	#1 tb_en <= 1'b1;
-	#1 wb_read(`GLITCH_STATUS);
-	#1 if(read_data != 8'b0) $stop;
-	#20 tb_en <= 1'b0;
-	#1 wb_wait();
-	#1 wb_wait();
-	#1 wb_wait();
-
-	// -- Test block II --
-	
-	// Delay = 0x3, Width = 0x0
-	#1 wb_write(`GLITCH_QUEUE_1, 8'h0);
-	#1 wb_write(`GLITCH_QUEUE_2, 8'h3);
-	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
-
-	// Delay = 0x0, Width = 0x0
+	#1 wb_write(`GLITCH_QUEUE_0, `GLITCH_MODE_CLKGL);
 	#1 wb_write(`GLITCH_QUEUE_1, 8'h0);
 	#1 wb_write(`GLITCH_QUEUE_2, 8'h0);
 	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
 
-	#1 tb_en <= 1'b1;
-	#1 wb_read(`GLITCH_STATUS);
-	#1 if(read_data != 8'b0) $stop;
-	#20 tb_en <= 1'b0;
-	#1 wb_wait();
-	#1 wb_wait();
-	#1 wb_wait(); 
-
-	// -- Test block III --
-
-	// Delay = 0x3, Width = 0x5
-	#1 wb_write(`GLITCH_QUEUE_1, 8'h5);
-	#1 wb_write(`GLITCH_QUEUE_2, 8'h3);
+	// Delay = 0x2, Width = 0x4
+	#1 wb_write(`GLITCH_QUEUE_0, `GLITCH_MODE_CLKGL);
+	#1 wb_write(`GLITCH_QUEUE_1, 8'h2);
+	#1 wb_write(`GLITCH_QUEUE_2, 8'h4);
 	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
 
-	#1 tb_en <= 1'b1;
+	// Delay = 0x2, Width = 0x2
+	#1 wb_write(`GLITCH_QUEUE_0, `GLITCH_MODE_CLKGL);
+	#1 wb_write(`GLITCH_QUEUE_1, 8'h2);
+	#1 wb_write(`GLITCH_QUEUE_2, 8'h2);
+	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
+
+	#1 wb_write(`GLITCH_QUEUE_0, `GLITCH_MODE_CLKGL);
+	#1 wb_write(`GLITCH_QUEUE_1, 8'h0);
+	#1 wb_write(`GLITCH_QUEUE_2, 8'h0);
+	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
+
+
+	// Delay = 0x2, Width = 0x4
+	#1 wb_write(`GLITCH_QUEUE_0, `GLITCH_MODE_CLKGL);
+	#1 wb_write(`GLITCH_QUEUE_1, 8'h2);
+	#1 wb_write(`GLITCH_QUEUE_2, 8'h4);
+	#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
+
+	// Fill the FIFO.
+	repeat (249)
+	begin
+		// NOP
+		#1 wb_write(`GLITCH_QUEUE_0, `GLITCH_MODE_BYPASS);
+		#1 wb_write(`GLITCH_QUEUE_1, 8'h0);
+		#1 wb_write(`GLITCH_QUEUE_2, 8'h0);
+		#1 wb_write(`GLITCH_QUEUE_3, 8'h0);
+	end
+
+	// It should start by itself after the FIFO is full.
 	#1 wb_read(`GLITCH_STATUS);
 	#1 if(read_data != 8'b0) $stop;
-	#20 tb_en <= 1'b0;
-	#1 wb_wait();
-	#1 wb_wait();
-	#1 wb_wait();
+
+	// After a while it should be ready again.
+	#10000
+	begin
+	 	#1 wb_read(`GLITCH_STATUS);
+		#1 if(read_data != 8'b1) $stop;
+	end
 
 	$display("Testbench completed successfully!");
 	$stop;
@@ -274,6 +239,7 @@ always @ (gi.glitchi.state)
 begin
     case (gi.glitchi.state)
         `GLITCH_STATE_IDLE:      tb_state_str = "Idle";
+        `GLITCH_STATE_RESET:     tb_state_str = "Reset";
         `GLITCH_STATE_READ:		 tb_state_str = "Read";
         `GLITCH_STATE_DELAY:     tb_state_str = "Delay";
         `GLITCH_STATE_WIDTH:     tb_state_str = "Width";

@@ -161,7 +161,8 @@ read_fifo fifoi(
     .we_o(we_o),
     .dout(RX1));
 
-assign CH1_OE = 6'b111011;
+assign CH1_OE = 6'b111111;
+assign CH2_OE = 6'b111111;
 
 glitch_wb ch1(
 	.clk_i(clk_o),
@@ -174,11 +175,9 @@ glitch_wb ch1(
 	.we_i(we_o),
 	.clk_in(GLC),
     .clk_gl(GLB),
-	.ch_out(CH1_OUT)
+	.ch1_out(CH1_OUT),
+    .ch2_out(CH2_OUT)
 );
-
-assign CH2_OE = 6'b111111;
-assign CH2_OUT = {GLA, 1'b0, GLB, 1'b0, GLC, 1'b0};
 
 krake_port ch3(
     .clk_i(clk_o),

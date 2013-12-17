@@ -12,11 +12,12 @@ module glitch_wb(
     input wire          clk_in,
     input wire          clk_gl,
     output wire         clk_out,
-    output wire [5:0]	ch_out
+    output wire [5:0]	ch1_out,
+    output wire [5:0]   ch2_out
 );
 
 // --------------------------------------------
-// Channel pinout:
+// Channel 1 output pinout:
 
 // 0 clk_out        -- glitch_core.clk_out
 // 1 clk_in         -- glitch_core.clk_in
@@ -25,21 +26,34 @@ module glitch_wb(
 // 4 glitch_en      -- glitch_core.en
 // 5 delay_en       -- glitch.delay_en
 
-assign ch_out[0] = clk_out;
-assign ch_out[1] = clk_in;
+assign ch1_out[0] = clk_out;
+assign ch1_out[1] = clk_in;
 
 wire en;
-assign en = ch_out[2];
+assign ch1_out[2] = en;
 
 wire ready;
-assign ch_out[3] = ready;
+assign ch1_out[3] = ready;
 
-wire glitch_en;
-assign ch_out[4] = glitch_en;
+wire glitch1_en;
+assign ch1_out[4] = glitch1_en;
 
 wire delay_en;
-assign delay_en = (!ready && !glitch_en);
-assign ch_out[5] = delay_en;
+assign delay_en = (!ready && !glitch1_en);
+assign ch1_out[5] = delay_en;
+
+// --------------------------------------------
+// Channel 2 output pinout:
+
+// 0 rst_o          -- glitch.rst_o
+// 1 not used
+// 2 not used
+// 3 not used
+// 4 not used
+// 5 notused
+
+wire rst_o;
+assign ch2_out[0] = rst_o;
 
 // --------------------------------------------
 
@@ -69,10 +83,11 @@ glitch glitchi(
     .rst(rst_i),
     .fifo_in(fifo_out),
     .fifo_empty(fifo_empty),
+    .fifo_full(fifo_full),
     .fifo_re(fifo_re),
-    .en(en),
     .ready(ready),
     .clk_out(clk_out),
+    .rst_o(rst_o),
     .glitch_en(glitch_en)
 );
 
@@ -175,6 +190,23 @@ begin
                     end
                 end
 
+                `GLITCH_FIFO_EMPTY:
+                begin
+                    if (!we_i)
+                    begin
+                        dat_o[0] <= fifo_empty;
+                        ack_o <= 1'b1;
+                    end
+                end
+
+                `GLITCH_FIFO_FULL:
+                begin
+                    if (!we_i)
+                    begin
+                        dat_o[0] <= fifo_full;
+                        ack_o <= 1'b1;
+                    end
+                end
             endcase
         end
     end

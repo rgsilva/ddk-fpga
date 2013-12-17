@@ -6,10 +6,11 @@ module glitch(
     input wire          rst,
     input wire [31:0]   fifo_in,
     input wire          fifo_empty,
+    input wire          fifo_full,
     output reg          fifo_re,
-    input wire          en,
     output wire         ready,
     output wire         clk_out,
+    output wire         rst_o,
     output reg          glitch_en
 );
 
@@ -21,10 +22,10 @@ reg [15:0]  delay_cnt;
 reg [7:0]   glitch_mode;
 
 // State
-reg [1:0]   state;
+reg [2:0]   state;
 
 // Ready wire
-assign ready = (state == `GLITCH_STATE_IDLE && !en);
+assign ready = (state == `GLITCH_STATE_IDLE);
 
 // Some wires to make it easier to read/understand
 wire [15:0] delay;
@@ -33,6 +34,18 @@ wire [7:0] width;
 assign width = fifo_in[15:8];
 wire [7:0] mode;
 assign mode = fifo_in[7:0];
+
+// Control registers and wires for the reset module.
+reg reset_en;
+wire reset_ready;
+
+glitch_reset glitch_reseti(
+    .clk_in(clk_in),
+    .rst(rst),
+    .en(reset_en),
+    .ready(reset_ready),
+    .rst_o(rst_o)
+);
 
 glitch_core glitch_corei(
     .clk_in(clk_in),
@@ -57,6 +70,7 @@ begin
     else
     begin
         fifo_re <= 1'b0;
+        reset_en <= 1'b0;
         glitch_en <= glitch_en;
         glitch_width <= glitch_width;
         width_cnt <= width_cnt;
@@ -67,9 +81,19 @@ begin
         case (state)
             `GLITCH_STATE_IDLE:
             begin
-                if (en && !fifo_empty)
+                if (fifo_full)
                 begin
-                    // Activates the read and go to the next state.
+                    // Resets the external device before reading the FIFO.
+                    reset_en <= 1'b1;
+                    state <= `GLITCH_STATE_RESET;
+                end
+            end
+
+            `GLITCH_STATE_RESET:
+            begin
+                if (reset_ready)
+                begin
+                    // The device has been resetted. Let's read the FIFO.
                     fifo_re <= 1'b1;
                     state <= `GLITCH_STATE_READ;
                 end
