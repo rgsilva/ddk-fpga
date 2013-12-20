@@ -50,7 +50,7 @@ assign ch1_out[5] = delay_en;
 // 2 not used
 // 3 not used
 // 4 not used
-// 5 notused
+// 5 not used
 
 wire rst_o;
 assign ch2_out[0] = rst_o;

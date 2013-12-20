@@ -9,11 +9,10 @@
 
 // Glitch module states
 
-`define GLITCH_STATE_IDLE	3'b000
-`define GLITCH_STATE_RESET	3'b001
-`define GLITCH_STATE_READ	3'b010
-`define GLITCH_STATE_DELAY	3'b011
-`define GLITCH_STATE_WIDTH	3'b100
+`define GLITCH_STATE_IDLE	2'b00
+`define GLITCH_STATE_READ	2'b01
+`define GLITCH_STATE_DELAY	2'b10
+`define GLITCH_STATE_WIDTH	2'b11
 
 // Glitch reset module states
 `define GLITCH_RESET_IDLE	1'b0

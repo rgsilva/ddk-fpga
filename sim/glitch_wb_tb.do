@@ -34,5 +34,12 @@ add wave -noupdate -divider
 add wave -noupdate -label full /glitch_wb_tb/gi/fifoi/FULL
 add wave -noupdate -label empty /glitch_wb_tb/gi/fifoi/EMPTY
 add wave -noupdate -label reset /glitch_wb_tb/gi/fifoi/RESET
+add wave -noupdate -label q -radix hexadecimal /glitch_wb_tb/gi/fifoi/Q
+
+add wave -noupdate -divider
+
+add wave -noupdate -label reset_en /glitch_wb_tb/gi/glitchi/glitch_reseti/en
+add wave -noupdate -label clk_cnt -radix hexadecimal /glitch_wb_tb/gi/glitchi/glitch_reseti/clk_cnt
+add wave -noupdate -label rst_o /glitch_wb_tb/gi/glitchi/glitch_reseti/rst_o
 
 TreeUpdate [SetDefaultTree]
