@@ -13,6 +13,7 @@ module glitch_wb(
     input wire          clk_gl,
     output wire         clk_out,
     output wire [5:0]	ch1_out,
+    input wire [5:0]    ch2_in,
     output wire [5:0]   ch2_out
 );
 
@@ -35,25 +36,28 @@ assign ch1_out[2] = en;
 wire ready;
 assign ch1_out[3] = ready;
 
-wire glitch1_en;
-assign ch1_out[4] = glitch1_en;
+wire glitch_en;
+assign ch1_out[4] = glitch_en;
 
 wire delay_en;
-assign delay_en = (!ready && !glitch1_en);
+assign delay_en = (!ready && !glitch_en);
 assign ch1_out[5] = delay_en;
 
 // --------------------------------------------
 // Channel 2 output pinout:
 
-// 0 rst_o          -- glitch.rst_o
-// 1 not used
-// 2 not used
+// 0 rst_o          -- glitch.rst_o             OUT
+// 1 en_i           -- glitch.en_i              IN
+// 2 board_ready    -- glitch_wb.board_ready    OUT
 // 3 not used
 // 4 not used
 // 5 not used
 
 wire rst_o;
 assign ch2_out[0] = rst_o;
+
+wire board_ready;
+assign ch2_out[2] = board_ready;
 
 // --------------------------------------------
 
@@ -77,6 +81,12 @@ glitch_fifo fifoi(
     .FULL(fifo_full)
 );
 
+edge_detect edge_detecti(
+    .clk(clk_in),
+    .async_sig(ch2_in[1]),
+    .fall(board_ready)
+);
+
 glitch glitchi(
     .clk_in(clk_in),
     .clk_gl(clk_gl),
@@ -88,6 +98,7 @@ glitch glitchi(
     .ready(ready),
     .clk_out(clk_out),
     .rst_o(rst_o),
+    .board_ready(board_ready),
     .glitch_en(glitch_en)
 );
 

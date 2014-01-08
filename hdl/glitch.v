@@ -4,13 +4,17 @@ module glitch(
     input wire          clk_in,
     input wire          clk_gl,
     input wire          rst,
+    output wire         ready,
+
     input wire [31:0]   fifo_in,
     input wire          fifo_empty,
     input wire          fifo_full,
     output reg          fifo_re,
-    output wire         ready,
+
+    input wire          board_ready,
     output wire         clk_out,
     output wire         rst_o,
+
     output reg          glitch_en
 );
 
@@ -22,7 +26,7 @@ reg [15:0]  delay_cnt;
 reg [7:0]   glitch_mode;
 
 // State
-reg [1:0]   state;
+reg [2:0]   state;
 
 // Ready wire
 assign ready = (state == `GLITCH_STATE_IDLE);
@@ -81,10 +85,17 @@ begin
             begin
                 if (fifo_full)
                 begin
-                    // Resets the external device.
+                    // Enable the reset module and go to WAIT.
                     reset_en <= 1'b1;
+                    state <= `GLITCH_STATE_WAIT;
+                end
+            end
 
-                    // Start reading the FIFO already.
+            `GLITCH_STATE_WAIT:
+            begin
+                if (board_ready)
+                begin
+                    // The board is ready (sync). Let's start reading the FIFO already.
                     fifo_re <= 1'b1;
                     state <= `GLITCH_STATE_READ;
                 end

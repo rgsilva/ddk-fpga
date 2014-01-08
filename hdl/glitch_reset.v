@@ -7,7 +7,7 @@ module glitch_reset(
     output wire         rst_o
 );
 
-`define RESET_TIME 8'h09
+`define RESET_TIME 8'h20
 
 // State and counters
 reg state;

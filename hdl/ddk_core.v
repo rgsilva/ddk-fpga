@@ -162,7 +162,7 @@ read_fifo fifoi(
     .dout(RX1));
 
 assign CH1_OE = 6'b111111;
-assign CH2_OE = 6'b111111;
+assign CH2_OE = 6'b111101;
 
 glitch_wb ch1(
 	.clk_i(clk_o),
@@ -176,6 +176,7 @@ glitch_wb ch1(
 	.clk_in(GLC),
     .clk_gl(GLB),
 	.ch1_out(CH1_OUT),
+    .ch2_in(CH2_IN),
     .ch2_out(CH2_OUT)
 );
 
