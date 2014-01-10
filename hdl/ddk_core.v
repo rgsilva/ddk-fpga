@@ -34,10 +34,11 @@
 // TODO: wait a couple of clock cycles on Reset
 
 module ddk_core(
+        input   wire  SysClk,            // System Clock
+        input   wire  SysRst,            // System Reset
         input   wire  GLA,               // PLL Clock A (System Clock)
         input   wire  GLB,               // PLL Clock B
         input   wire  GLC,               // PLL Clock C
-        input   wire  SysRst,            // System Reset
         input   wire  TX1,               // LPC TXD1
         output  wire  RX1,               // LPC RXD1
         input   wire  DataClk,           // LPC TXD3
@@ -79,7 +80,7 @@ wire [7:0]   dat_o;
 reg  [7:0]   dat_i;
 reg          ack_i;
 
-assign clk_o = GLA;
+assign clk_o = SysClk;
 assign rst_o = SysRst;
 
 // CH1
@@ -173,8 +174,8 @@ glitch_wb ch1(
 	.dat_o(ch1_dat_o),
 	.stb_i(ch1_stb_i),
 	.we_i(we_o),
-	.clk_in(GLC),
-    .clk_gl(GLB),
+	.clk_in(GLA),
+    .clk_gl(GLC),
 	.ch1_out(CH1_OUT),
     .ch2_in(CH2_IN),
     .ch2_out(CH2_OUT)

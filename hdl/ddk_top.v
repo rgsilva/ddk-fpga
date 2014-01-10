@@ -137,10 +137,11 @@ p3_pll plli(
 );
 
 ddk_core corei(
-        .GLA(GLA),              // PLL Clock A (System Clock)
+        .SysClk(CLKA),          // System Clock
+        .SysRst(SysRst),        // System RST
+        .GLA(GLA),              // PLL Clock A
         .GLB(GLB),              // PLL Clock B
         .GLC(GLC),              // PLL Clock C
-        .SysRst(SysRst),        // System RST
         .TX1(TX1),              // LPC TXD1
         .RX1(RX1),              // LPC RXD1
         .DataClk(DataClk),      // LPC TXD3
