@@ -14,7 +14,9 @@ begin
 
 	if (en)
 	begin
-		if (mode[3] == 1'b1)
+		if (mode[4] == 1'b1)
+			clk_out <= (clk_in && clk_gl);
+		else if (mode[3] == 1'b1)
 			clk_out <= clk_gl;
 		else if (mode[2] == 1'b1)
 			clk_out <= ~clk_in;

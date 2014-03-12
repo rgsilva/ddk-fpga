@@ -1,11 +1,11 @@
-// Glitch modes
+// Glitch operation modes
 
-// Nothing and gates
 `define GLITCH_MODE_BYPASS	8'b00000000
 `define GLITCH_MODE_ZERO	8'b00000001
 `define GLITCH_MODE_ONE		8'b00000010
 `define GLITCH_MODE_NOT		8'b00000100
 `define GLITCH_MODE_CLKGL	8'b00001000
+`define GLITCH_MODE_CLKGEN	8'b00010000
 
 // Glitch module states
 
