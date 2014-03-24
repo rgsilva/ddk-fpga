@@ -266,6 +266,22 @@ krake_port ch7(
     .clkc(clkc),
     .clkd(clkd));
 
+assign CH8_OE = 6'b000000;
+
+clk_counter_wb ci(
+    .clk_i(clk_o),
+    .rst_i(rst_o),
+    .ack_o(ch8_ack_o),
+    .dat_i(dat_o),
+    .adr_i(adr_o[3:0]),
+    .dat_o(ch8_dat_o),
+    .stb_i(ch8_stb_i),
+    .we_i(we_o),
+    .clk_in(GLA),
+    .ch_in(CH8_IN)
+);
+
+/*
 krake_port ch8(
     .clk_i(clk_o),
     .rst_i(rst_o),
@@ -282,6 +298,7 @@ krake_port ch8(
     .clkb(clkb),
     .clkc(clkc),
     .clkd(clkd));
+*/
 
 clk_gen clk_gena(
     .clk_i(clk_o),
