@@ -6,7 +6,7 @@ module glitch(
     input wire          rst,
     output wire         ready,
 
-    input wire [31:0]   fifo_in,
+    input wire [48:0]   fifo_in,
     input wire          fifo_empty,
     input wire          fifo_full,
     output reg          fifo_re,
@@ -21,8 +21,8 @@ module glitch(
 // Buffers and counters
 reg [7:0]   glitch_width;
 reg [7:0]   width_cnt;
-reg [15:0]  glitch_delay;
-reg [15:0]  delay_cnt;
+reg [31:0]  glitch_delay;
+reg [31:0]  delay_cnt;
 reg [7:0]   glitch_mode;
 
 // State
@@ -32,8 +32,8 @@ reg [2:0]   state;
 assign ready = (state == `GLITCH_STATE_IDLE);
 
 // Some wires to make it easier to read/understand
-wire [15:0] delay;
-assign delay = fifo_in[31:16];
+wire [31:0] delay;
+assign delay = fifo_in[47:16];
 wire [7:0] width;
 assign width = fifo_in[15:8];
 wire [7:0] mode;
@@ -65,8 +65,8 @@ begin
         glitch_en <= 1'b0;
         glitch_width <= 8'b0;
         width_cnt <= 8'b0;
-        glitch_delay <= 16'b0;
-        delay_cnt <= 16'b0;
+        glitch_delay <= 32'b0;
+        delay_cnt <= 32'b0;
         glitch_mode <= 8'b0;
     end
     else
@@ -109,11 +109,11 @@ begin
                 glitch_mode <= mode;
 
                 // Reset the counters.
-                delay_cnt <= 16'b0;
+                delay_cnt <= 32'b0;
                 width_cnt <= 8'b0;
 
                 // Change the state.
-                if (delay == 16'b0 && width == 8'b0)
+                if (delay == 32'b0 && width == 8'b0)
                 begin
                     // There's nothing to do.
 
@@ -129,7 +129,7 @@ begin
                         state <= `GLITCH_STATE_IDLE;
                     end
                 end
-                else if (delay == 16'b0)
+                else if (delay == 32'b0)
                 begin
                     // There's no delay.
                     glitch_en <= 1'b1;

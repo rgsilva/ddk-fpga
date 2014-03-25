@@ -312,6 +312,8 @@ clk_gen clk_gena(
     .clk_posedge(clka_posedge),
     .clk_out(clka));
 
+// The following clock generators were disabled to free some space up on the FPGA.
+/*
 clk_gen clk_genb(
     .clk_i(clk_o),
     .rst_i(rst_o),
@@ -347,6 +349,7 @@ clk_gen clk_gend(
     .we_i(we_o),
     .clk_posedge(clkd_posedge),
     .clk_out(clkd));
+*/
 
 // Generate Strobes for all channels on the bus
 assign ch1_stb_i  = (stb_o && (adr_o[7:4] == `CH1_BASE));

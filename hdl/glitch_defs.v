@@ -26,5 +26,7 @@
 `define GLITCH_QUEUE_1		4'h2	// (r/w) Data[15:8]
 `define GLITCH_QUEUE_2		4'h3	// (r/w) Data[23:16]
 `define GLITCH_QUEUE_3		4'h4	// (r/w) Data[31:24]
-`define GLITCH_FIFO_EMPTY	4'h5	// (r) Fifo EMPTY flag
-`define GLITCH_FIFO_FULL	4'h6	// (r) Fifo FULL flag
+`define GLITCH_QUEUE_4		4'h5	// (r/w) Data[39:32]
+`define GLITCH_QUEUE_5		4'h6	// (r/w) Data[47:40]
+`define GLITCH_FIFO_EMPTY	4'hE	// (r) Fifo EMPTY flag
+`define GLITCH_FIFO_FULL	4'hF	// (r) Fifo FULL flag

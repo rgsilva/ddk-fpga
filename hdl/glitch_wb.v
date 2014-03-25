@@ -61,11 +61,11 @@ assign ch2_out[2] = board_ready;
 
 // --------------------------------------------
 
-reg [31:0] fifo_in;
+reg [47:0] fifo_in;
 reg fifo_we;
 wire fifo_full;
 
-wire [31:0] fifo_out;
+wire [47:0] fifo_out;
 wire fifo_re;
 wire fifo_empty;
 
@@ -106,7 +106,7 @@ always @ (posedge clk_i)
 begin
     if(rst_i)
     begin
-        fifo_in <= 32'b0;
+        fifo_in <= 48'b0;
     end
     else
     begin
@@ -182,6 +182,38 @@ begin
                     begin
                         // Write the settings [31:24]
                         fifo_in[31:24] <= dat_i;
+                        ack_o <= 1'b1;
+                    end
+                    else
+                    begin
+                        // Read the settings [31:24]
+                        dat_o <= fifo_in[31:24];
+                        ack_o <= 1'b1;
+                    end
+                end
+
+                `GLITCH_QUEUE_4:
+                begin
+                    if (we_i)
+                    begin
+                        // Write the settings [39:32]
+                        fifo_in[39:32] <= dat_i;
+                        ack_o <= 1'b1;
+                    end
+                    else
+                    begin
+                        // Read the settings [39:32]
+                        dat_o <= fifo_in[39:32];
+                        ack_o <= 1'b1;
+                    end
+                end
+
+                `GLITCH_QUEUE_5:
+                begin
+                    if (we_i)
+                    begin
+                        // Write the settings [47:40]
+                        fifo_in[47:40] <= dat_i;
 
                         if (!fifo_full)
                         begin
@@ -195,8 +227,8 @@ begin
                     end
                     else
                     begin
-                        // Read the settings [31:24]
-                        dat_o <= fifo_in[31:24];
+                        // Read the settings [47:40]
+                        dat_o <= fifo_in[47:40];
                         ack_o <= 1'b1;
                     end
                 end
